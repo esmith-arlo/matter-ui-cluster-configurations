@@ -18,57 +18,47 @@
             <div class="header-content">
                 <div class="header-branding">
                     <div class="arlo-logo">
-                        <div class="arlo-hummingbird">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <!-- Hummingbird body -->
-                                <ellipse cx="12" cy="12" rx="3" ry="4" fill="#00D4AA" />
-                                <!-- Beak -->
-                                <path d="M8 12L6 10" stroke="#00D4AA" stroke-width="2" stroke-linecap="round" />
-                                <!-- Wings -->
-                                <path d="M9 8C7 6 5 8 6 10" stroke="#00D4AA" stroke-width="2" stroke-linecap="round"
-                                    fill="none" />
-                                <path d="M15 8C17 6 19 8 18 10" stroke="#00D4AA" stroke-width="2" stroke-linecap="round"
-                                    fill="none" />
-                                <!-- Tail -->
-                                <path d="M9 16C7 18 5 20 3 18" stroke="#00D4AA" stroke-width="2" stroke-linecap="round"
-                                    fill="none" />
-                                <path d="M15 16C17 18 19 20 21 18" stroke="#00D4AA" stroke-width="2"
-                                    stroke-linecap="round" fill="none" />
-                            </svg>
-                        </div>
-                        <span class="arlo-text">arlo</span>
+                        <img src="assets/arlo-logo.png" alt="Arlo Logo" width="90">
                     </div>
                     <h1>Matter Cluster UI Visualizer</h1>
                 </div>
                 <p>Interactive visualization of Matter clusters and their UI configurations</p>
             </div>
-        </header>
+        </header>s
 
         <!-- Navigation -->
         <nav class="navigation">
-            <div class="nav-content">
-                <div class="cluster-selector">
-                    <label for="cluster-select">Select Cluster:</label>
-                    <select id="cluster-select">
-                        <option value="">Choose a cluster...</option>
-                        <option value="OnOff">On/Off (0x0006)</option>
-                        <option value="LevelControl">Level Control (0x0008)</option>
-                        <option value="ColorControl">Color Control (0x0300)</option>
-                        <option value="Thermostat">Thermostat (0x0201)</option>
-                        <option value="DoorLock">Door Lock (0x0101)</option>
-                        <option value="FanControl">Fan Control (0x0202)</option>
-                        <option value="Switch">Switch (0x003B)</option>
+        <div class="nav-content">
+            <div class="selector-group">
+                <div class="device-category-selector">
+                    <label for="device-category-select">Select Category:</label>
+                    <select id="device-category-select">
+                        <option value="">Choose a category...</option>
+                        <option value="lights">Light</option>
+                        <option value="entry-control">Entry Control</option>
+                        <option value="hvac">HVAC</option>
+                        <option value="plugs">Plugs</option>
                     </select>
                 </div>
-                <div class="view-controls">
-                    <button id="toggle-view" class="btn btn-secondary">
-                        <i class="fas fa-code"></i> Toggle JSON View
-                    </button>
-                    <button id="reset-state" class="btn btn-outline">
-                        <i class="fas fa-refresh"></i> Reset
-                    </button>
+                <div class="device-type-selector">
+                    <label for="device-type-select">Select Device Type:</label>
+                    <select id="device-type-select" disabled>
+                        <option value="">Choose a category first...</option>
+                    </select>
+                </div>
+                <div class="cluster-selector">
+                    <label for="cluster-select">Select Cluster:</label>
+                    <select id="cluster-select" disabled>
+                        <option value="">Choose a device type first...</option>
+                    </select>
                 </div>
             </div>
+            <div class="view-controls">
+                <button id="reset-state" class="btn btn-outline">
+                    <i class="fas fa-refresh"></i> Reset
+                </button>
+            </div>
+        </div>
         </nav>
 
         <!-- Main Content -->
@@ -131,6 +121,7 @@
 
     <!-- Scripts -->
     <script src="scripts/xml-parser.js"></script>
+    <script src="scripts/device-type-parser.js"></script>
     <script src="scripts/ui-components.js"></script>
     <script src="scripts/config-generator.js"></script>
     <script src="scripts/main.js"></script>

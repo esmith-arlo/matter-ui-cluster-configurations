@@ -1,11 +1,12 @@
 class MatterUIVisualizer {
     constructor() {
         this.xmlParser = new MatterXMLParser();
+        this.deviceTypeParser = new DeviceTypeParser();
         this.uiComponents = new UIComponents();
         this.configGenerator = new UIConfigGenerator();
         this.currentCluster = null;
+        this.currentDeviceType = null;
         this.currentConfig = null;
-        this.showJSON = false;
 
         this.initializeApp();
     }
@@ -17,17 +18,24 @@ class MatterUIVisualizer {
     }
 
     setupEventListeners() {
+        // Device category selection
+        const deviceCategorySelect = document.getElementById('device-category-select');
+        deviceCategorySelect.addEventListener('change', (e) => {
+            this.loadDeviceCategory(e.target.value);
+        });
+
+        // Device type selection
+        const deviceTypeSelect = document.getElementById('device-type-select');
+        deviceTypeSelect.addEventListener('change', (e) => {
+            this.loadDeviceType(e.target.value);
+        });
+
         // Cluster selection
         const clusterSelect = document.getElementById('cluster-select');
         clusterSelect.addEventListener('change', (e) => {
             this.loadCluster(e.target.value);
         });
 
-        // View toggle
-        const toggleView = document.getElementById('toggle-view');
-        toggleView.addEventListener('click', () => {
-            this.toggleJSONView();
-        });
 
         // Reset button
         const resetBtn = document.getElementById('reset-state');
@@ -49,9 +57,114 @@ class MatterUIVisualizer {
     }
 
     async loadClusterData() {
-        // Simulate loading cluster data
-        // In a real implementation, you would load XML files here
+        // Load device type data
+        await this.deviceTypeParser.loadDeviceTypeData();
         console.log('Loading cluster data...');
+    }
+
+    loadDeviceCategory(categoryKey) {
+        if (!categoryKey) {
+            this.showPlaceholder();
+            this.updateDeviceTypeSelector([]);
+            this.updateClusterSelector([]);
+            return;
+        }
+
+        const category = this.deviceTypeParser.deviceTypes.get(categoryKey);
+        if (!category) {
+            console.error('Device category not found:', categoryKey);
+            return;
+        }
+
+        // Update device type selector with available device types
+        this.updateDeviceTypeSelector(category.deviceTypes);
+
+        // Reset device type and cluster selections
+        const deviceTypeSelect = document.getElementById('device-type-select');
+        const clusterSelect = document.getElementById('cluster-select');
+        deviceTypeSelect.value = '';
+        clusterSelect.value = '';
+        this.showPlaceholder();
+
+        this.currentDeviceCategory = categoryKey;
+    }
+
+    loadDeviceType(deviceTypeKey) {
+        if (!deviceTypeKey) {
+            this.showPlaceholder();
+            this.updateClusterSelector([]);
+            return;
+        }
+
+        // Find the device type in the current category
+        const category = this.deviceTypeParser.deviceTypes.get(this.currentDeviceCategory);
+        if (!category) {
+            console.error('Current category not found:', this.currentDeviceCategory);
+            return;
+        }
+
+        const deviceType = category.deviceTypes.find(dt => dt.key === deviceTypeKey);
+        if (!deviceType) {
+            console.error('Device type not found:', deviceTypeKey);
+            return;
+        }
+
+        // Get clusters for this device type
+        const clusters = deviceType.clusters.map(clusterName => {
+            const cluster = category.clusters.find(c => c.type === clusterName);
+            return cluster ? { id: cluster.id, name: cluster.name, type: cluster.type } : null;
+        }).filter(Boolean);
+
+        // Update cluster selector with available clusters
+        this.updateClusterSelector(clusters);
+
+        // Update device info
+        this.updateDeviceInfo(deviceType.name, 'Select a cluster');
+
+        // Reset cluster selection
+        const clusterSelect = document.getElementById('cluster-select');
+        clusterSelect.value = '';
+        this.showPlaceholder();
+
+        this.currentDeviceType = deviceTypeKey;
+    }
+
+    updateDeviceTypeSelector(deviceTypes) {
+        const deviceTypeSelect = document.getElementById('device-type-select');
+        deviceTypeSelect.innerHTML = '<option value="">Choose a device type...</option>';
+        
+        if (deviceTypes.length === 0) {
+            deviceTypeSelect.disabled = true;
+            return;
+        }
+
+        deviceTypeSelect.disabled = false;
+        deviceTypes.forEach(deviceType => {
+            const option = document.createElement('option');
+            option.value = deviceType.key;
+            option.textContent = deviceType.name;
+            deviceTypeSelect.appendChild(option);
+        });
+    }
+
+    updateClusterSelector(clusters) {
+        const clusterSelect = document.getElementById('cluster-select');
+        clusterSelect.innerHTML = '<option value="">Choose a cluster...</option>';
+        
+        if (clusters.length === 0) {
+            clusterSelect.disabled = true;
+            clusterSelect.innerHTML = '<option value="">Choose a device type first...</option>';
+            return;
+        }
+
+        clusterSelect.disabled = false;
+        
+        clusters.forEach(cluster => {
+            const option = document.createElement('option');
+            option.value = cluster.type;
+            option.textContent = `${cluster.name} (${cluster.id})`;
+            clusterSelect.appendChild(option);
+        });
     }
 
     async loadCluster(clusterType) {
@@ -61,15 +174,26 @@ class MatterUIVisualizer {
         }
 
         try {
-            // Simulate cluster info (in real app, this would come from XML parsing)
-            const clusterInfo = this.getMockClusterInfo(clusterType);
+            // Get cluster info from device type parser
+            const clusterId = this.getClusterIdForType(clusterType);
+            const clusterInfo = this.deviceTypeParser.getClusterInfo(clusterId);
+
+            if (!clusterInfo) {
+                this.showError(`Cluster information not found for ${clusterType}`);
+                return;
+            }
 
             // Update device info
-            this.updateDeviceInfo(clusterType);
+            const category = this.deviceTypeParser.deviceTypes.get(this.currentDeviceCategory);
+            const deviceType = category.deviceTypes.find(dt => dt.key === this.currentDeviceType);
+            this.updateDeviceInfo(deviceType.name, clusterInfo.name);
 
             // Create UI component
             const uiContainer = document.getElementById('ui-container');
             uiContainer.innerHTML = '';
+
+            // Set current device type for UI components
+            window.currentDeviceType = this.currentDeviceType;
 
             const component = this.uiComponents.createComponent(clusterType, uiContainer);
             uiContainer.appendChild(component);
@@ -92,6 +216,23 @@ class MatterUIVisualizer {
             console.error('Error loading cluster:', error);
             this.showError('Failed to load cluster');
         }
+    }
+
+    getClusterIdForType(clusterType) {
+        const clusterIdMap = {
+            'Identify': '0x0003',
+            'Groups': '0x0004',
+            'OnOff': '0x0006',
+            'LevelControl': '0x0008',
+            'ColorControl': '0x0300',
+            'DoorLock': '0x0101',
+            'Thermostat': '0x0201',
+            'FanControl': '0x0202',
+            'ScenesManagement': '0x0062',
+            'PumpConfigurationAndControl': '0x0200',
+            'ValveConfigurationAndControl': '0x0201'
+        };
+        return clusterIdMap[clusterType] || '0x0006';
     }
 
     getMockClusterInfo(clusterType) {
@@ -173,15 +314,15 @@ class MatterUIVisualizer {
         return clusterInfos[clusterType] || clusterInfos['OnOff'];
     }
 
-    updateDeviceInfo(clusterType) {
+    updateDeviceInfo(deviceTypeName, clusterName) {
         const deviceType = document.getElementById('device-type');
         const deviceStatus = document.getElementById('device-status');
 
         if (deviceType) {
-            deviceType.textContent = clusterType;
+            deviceType.textContent = deviceTypeName;
         }
         if (deviceStatus) {
-            deviceStatus.textContent = 'Online';
+            deviceStatus.textContent = clusterName || 'Online';
         }
     }
 
@@ -199,7 +340,7 @@ class MatterUIVisualizer {
     highlightJSON(element) {
         const text = element.textContent;
         const highlighted = text
-            .replace(/(".*?")\s*:/g, '<span style="color: #0066cc;">$1</span>:')
+            .replace(/(".*?")\s*:/g, '<span style="color: #055E88;">$1</span>:')
             .replace(/:\s*(".*?")/g, ': <span style="color: #009900;">$1</span>')
             .replace(/:\s*(\d+)/g, ': <span style="color: #ff6600;">$1</span>')
             .replace(/:\s*(true|false)/g, ': <span style="color: #cc0000;">$1</span>');
@@ -273,24 +414,31 @@ class MatterUIVisualizer {
         `;
     }
 
-    toggleJSONView() {
-        this.showJSON = !this.showJSON;
-        const configPanel = document.querySelector('.config-panel');
-        const uiPanel = document.querySelector('.ui-panel');
-
-        if (this.showJSON) {
-            configPanel.style.display = 'block';
-            uiPanel.style.display = 'none';
-        } else {
-            configPanel.style.display = 'block';
-            uiPanel.style.display = 'block';
-        }
-    }
 
     resetState() {
-        if (this.currentCluster) {
-            this.loadCluster(this.currentCluster);
-        }
+        // Reset device category selection
+        const deviceCategorySelect = document.getElementById('device-category-select');
+        deviceCategorySelect.value = '';
+        
+        // Reset device type selection
+        const deviceTypeSelect = document.getElementById('device-type-select');
+        deviceTypeSelect.value = '';
+        deviceTypeSelect.disabled = true;
+        deviceTypeSelect.innerHTML = '<option value="">Choose a category first...</option>';
+        
+        // Reset cluster selection
+        const clusterSelect = document.getElementById('cluster-select');
+        clusterSelect.value = '';
+        clusterSelect.disabled = true;
+        clusterSelect.innerHTML = '<option value="">Choose a device type first...</option>';
+        
+        // Reset current state
+        this.currentDeviceCategory = null;
+        this.currentDeviceType = null;
+        this.currentCluster = null;
+        
+        // Show placeholder
+        this.showPlaceholder();
     }
 
     async copyConfig() {

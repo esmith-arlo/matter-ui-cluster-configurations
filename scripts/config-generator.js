@@ -7,9 +7,6 @@ class UIConfigGenerator {
     initializeTemplates() {
         this.configTemplates.set('OnOff', {
             primary_control: 'toggle_switch',
-            icon: 'fas fa-power-off',
-            category: 'power',
-            display_name: 'Power Control',
             controls: ['toggle'],
             states: ['on', 'off'],
             accessibility: {
@@ -45,9 +42,6 @@ class UIConfigGenerator {
 
         this.configTemplates.set('LevelControl', {
             primary_control: 'brightness_slider',
-            icon: 'fas fa-sun',
-            category: 'lighting',
-            display_name: 'Brightness',
             brightness_range: [1, 254],
             display_range: [1, 100],
             min_level: 1,
@@ -91,9 +85,6 @@ class UIConfigGenerator {
 
         this.configTemplates.set('ColorControl', {
             primary_control: 'color_picker',
-            icon: 'fas fa-palette',
-            category: 'lighting',
-            display_name: 'Color Control',
             color_modes: ['rgb', 'hsv', 'xy', 'temperature'],
             color_picker: {
                 type: 'wheel',
@@ -158,9 +149,6 @@ class UIConfigGenerator {
 
         this.configTemplates.set('Thermostat', {
             primary_control: 'temperature_dial',
-            icon: 'fas fa-thermometer-half',
-            category: 'hvac',
-            display_name: 'Temperature',
             temperature_range: [16, 30],
             temperature_unit: 'celsius',
             controls: ['temperature_dial', 'up_down_buttons', 'mode_selector'],
@@ -200,9 +188,6 @@ class UIConfigGenerator {
 
         this.configTemplates.set('DoorLock', {
             primary_control: 'lock_button',
-            icon: 'fas fa-lock',
-            category: 'security',
-            display_name: 'Door Lock',
             controls: ['lock_button', 'unlock_button', 'status_display'],
             states: ['locked', 'unlocked', 'jammed'],
             security_features: ['pin_code', 'fingerprint', 'rfid'],
@@ -239,9 +224,6 @@ class UIConfigGenerator {
 
         this.configTemplates.set('FanControl', {
             primary_control: 'speed_selector',
-            icon: 'fas fa-fan',
-            category: 'hvac',
-            display_name: 'Fan Speed',
             speed_levels: ['off', 'low', 'medium', 'high', 'auto'],
             controls: ['speed_buttons', 'auto_mode'],
             states: ['speed', 'mode'],
@@ -279,9 +261,6 @@ class UIConfigGenerator {
 
         this.configTemplates.set('Switch', {
             primary_control: 'switch_grid',
-            icon: 'fas fa-toggle-on',
-            category: 'power',
-            display_name: 'Multi-Switch',
             switch_count: 4,
             controls: ['individual_switches', 'all_on', 'all_off'],
             states: ['switch1', 'switch2', 'switch3', 'switch4'],
@@ -313,6 +292,209 @@ class UIConfigGenerator {
                             error: 'string'
                         },
                         type_values: ['individual_toggle', 'all_on', 'all_off', 'bulk_action']
+                    }
+                }
+            }
+        });
+
+        this.configTemplates.set('Identify', {
+            primary_control: 'identify_panel',
+            controls: ['identify_button', 'trigger_effect', 'stop_button'],
+            states: ['ready', 'identifying', 'triggering'],
+            identify_time: {
+                min: 0,
+                max: 65535,
+                default: 10,
+                unit: 'seconds'
+            },
+            identify_types: [
+                { value: 0, name: 'None', description: 'No presentation' },
+                { value: 1, name: 'Light Output', description: 'Light output of a lighting product' },
+                { value: 2, name: 'Visible Indicator', description: 'Typically a small LED' },
+                { value: 3, name: 'Audible Beep', description: 'Audio indication' },
+                { value: 4, name: 'Display', description: 'Presentation on display screen' },
+                { value: 5, name: 'Actuator', description: 'Physical actuator movement' }
+            ],
+            effects: [
+                { value: 0, name: 'Blink', description: 'Light turns on/off once' },
+                { value: 1, name: 'Breathe', description: 'Light pulses over 1 second, repeated 15 times' },
+                { value: 2, name: 'Okay', description: 'Colored light turns green for 1 second' },
+                { value: 11, name: 'Channel Change', description: 'Orange light for 8 seconds' },
+                { value: 254, name: 'Finish Effect', description: 'Complete current effect sequence' },
+                { value: 255, name: 'Stop Effect', description: 'Terminate effect immediately' }
+            ],
+            accessibility: {
+                screen_reader: 'Device identification control',
+                content_description: 'Control device identification behavior and visual effects',
+                haptic_feedback: {
+                    enabled: true,
+                    on_identify_start: true,
+                    on_effect_trigger: true,
+                    intensity: 'medium',
+                    pattern: 'single_tap'
+                }
+            },
+            metrics: {
+                xray_view: true,
+                tracker: ['Amplitude', 'Splunk'],
+                events: {
+                    identify_event: {
+                        event_name: 'identify_action',
+                        properties: {
+                            type: 'string',
+                            action: 'string',
+                            identify_time: 'number',
+                            identify_type: 'number',
+                            effect_id: 'number',
+                            device_id: 'string',
+                            cluster_id: 'string',
+                            error: 'string'
+                        },
+                        type_values: ['identify_start', 'identify_stop', 'effect_trigger', 'effect_stop']
+                    }
+                }
+            }
+        });
+
+        this.configTemplates.set('Groups', {
+            primary_control: 'groups_panel',
+            controls: ['add_to_group', 'remove_from_group', 'view_groups'],
+            states: ['ungrouped', 'grouped'],
+            accessibility: {
+                screen_reader: 'Device group management',
+                content_description: 'Manage device group memberships',
+                haptic_feedback: {
+                    enabled: true,
+                    on_group_action: true,
+                    intensity: 'light',
+                    pattern: 'single_tap'
+                }
+            },
+            metrics: {
+                xray_view: true,
+                tracker: ['Amplitude', 'Splunk'],
+                events: {
+                    group_event: {
+                        event_name: 'group_action',
+                        properties: {
+                            type: 'string',
+                            action: 'string',
+                            group_id: 'string',
+                            device_id: 'string',
+                            cluster_id: 'string',
+                            error: 'string'
+                        },
+                        type_values: ['add_to_group', 'remove_from_group', 'view_groups']
+                    }
+                }
+            }
+        });
+
+        this.configTemplates.set('ScenesManagement', {
+            primary_control: 'scenes_panel',
+            controls: ['create_scene', 'activate_scene', 'deactivate_scene', 'delete_scene'],
+            states: ['no_scene', 'scene_active'],
+            accessibility: {
+                screen_reader: 'Scene management control',
+                content_description: 'Create and manage device scenes',
+                haptic_feedback: {
+                    enabled: true,
+                    on_scene_action: true,
+                    intensity: 'medium',
+                    pattern: 'single_tap'
+                }
+            },
+            metrics: {
+                xray_view: true,
+                tracker: ['Amplitude', 'Splunk'],
+                events: {
+                    scene_event: {
+                        event_name: 'scene_action',
+                        properties: {
+                            type: 'string',
+                            action: 'string',
+                            scene_id: 'string',
+                            scene_name: 'string',
+                            device_id: 'string',
+                            cluster_id: 'string',
+                            error: 'string'
+                        },
+                        type_values: ['create_scene', 'activate_scene', 'deactivate_scene', 'delete_scene']
+                    }
+                }
+            }
+        });
+
+        this.configTemplates.set('PumpConfigurationAndControl', {
+            primary_control: 'pump_control_panel',
+            controls: ['start_stop', 'speed_control', 'pressure_control', 'mode_selector'],
+            states: ['stopped', 'running', 'fault'],
+            operation_modes: ['constant_pressure', 'constant_speed', 'constant_flow'],
+            accessibility: {
+                screen_reader: 'Pump control panel',
+                content_description: 'Control pump operation, speed, and pressure',
+                haptic_feedback: {
+                    enabled: true,
+                    on_start_stop: true,
+                    intensity: 'high',
+                    pattern: 'long_press'
+                }
+            },
+            metrics: {
+                xray_view: true,
+                tracker: ['Amplitude', 'Splunk'],
+                events: {
+                    pump_event: {
+                        event_name: 'pump_operation_changed',
+                        properties: {
+                            type: 'string',
+                            action: 'string',
+                            speed: 'number',
+                            pressure: 'number',
+                            mode: 'string',
+                            device_id: 'string',
+                            cluster_id: 'string',
+                            timestamp: 'string',
+                            error: 'string'
+                        },
+                        type_values: ['pump_started', 'pump_stopped', 'speed_changed', 'pressure_changed', 'mode_changed']
+                    }
+                }
+            }
+        });
+
+        this.configTemplates.set('ValveConfigurationAndControl', {
+            primary_control: 'valve_control_panel',
+            controls: ['open_close', 'position_control', 'timing_control'],
+            states: ['closed', 'open', 'fault'],
+            position_range: [0, 100],
+            accessibility: {
+                screen_reader: 'Valve control panel',
+                content_description: 'Control water valve position and timing',
+                haptic_feedback: {
+                    enabled: true,
+                    on_position_change: true,
+                    intensity: 'medium',
+                    pattern: 'single_tap'
+                }
+            },
+            metrics: {
+                xray_view: true,
+                tracker: ['Amplitude', 'Splunk'],
+                events: {
+                    valve_event: {
+                        event_name: 'valve_operation_changed',
+                        properties: {
+                            type: 'string',
+                            action: 'string',
+                            position: 'number',
+                            duration: 'number',
+                            device_id: 'string',
+                            cluster_id: 'string',
+                            timestamp: 'string',
+                            error: 'string'
+                        },
+                        type_values: ['valve_opened', 'valve_closed', 'position_changed', 'duration_set']
                     }
                 }
             }
@@ -397,7 +579,12 @@ class UIConfigGenerator {
             'Thermostat': 'temperature_dial',
             'DoorLock': 'lock_control',
             'FanControl': 'speed_selector',
-            'Switch': 'switch_grid'
+            'Switch': 'switch_grid',
+            'Identify': 'identify_panel',
+            'Groups': 'groups_panel',
+            'ScenesManagement': 'scenes_panel',
+            'PumpConfigurationAndControl': 'pump_control_panel',
+            'ValveConfigurationAndControl': 'valve_control_panel'
         };
         return componentTypes[clusterType] || 'generic_control';
     }
@@ -410,7 +597,12 @@ class UIConfigGenerator {
             'Thermostat': 'circular',
             'DoorLock': 'vertical',
             'FanControl': 'grid',
-            'Switch': 'grid'
+            'Switch': 'grid',
+            'Identify': 'vertical',
+            'Groups': 'vertical',
+            'ScenesManagement': 'vertical',
+            'PumpConfigurationAndControl': 'vertical',
+            'ValveConfigurationAndControl': 'vertical'
         };
         return layouts[clusterType] || 'vertical';
     }
@@ -423,7 +615,12 @@ class UIConfigGenerator {
             'Thermostat': 'temperature',
             'DoorLock': 'security',
             'FanControl': 'air',
-            'Switch': 'power'
+            'Switch': 'power',
+            'Identify': 'utility',
+            'Groups': 'organization',
+            'ScenesManagement': 'automation',
+            'PumpConfigurationAndControl': 'industrial',
+            'ValveConfigurationAndControl': 'water'
         };
         return themes[clusterType] || 'default';
     }
@@ -436,7 +633,12 @@ class UIConfigGenerator {
             'Thermostat': ['temperature_change'],
             'DoorLock': ['lock_animation'],
             'FanControl': ['spin', 'speed_change'],
-            'Switch': ['toggle']
+            'Switch': ['toggle'],
+            'Identify': ['pulse', 'blink', 'breathe'],
+            'Groups': ['fade', 'slide'],
+            'ScenesManagement': ['fade', 'slide'],
+            'PumpConfigurationAndControl': ['pulse', 'rotation'],
+            'ValveConfigurationAndControl': ['flow', 'position_change']
         };
         return animations[clusterType] || [];
     }

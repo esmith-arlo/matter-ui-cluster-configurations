@@ -46,7 +46,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: #2F6B9C;
+    background: #055E88;
     padding: 0.5rem 1rem;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -98,10 +98,84 @@ body {
     margin: 0 auto;
     padding: 0 2rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 1.5rem;
+}
+
+.selector-group {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.device-category-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.device-category-selector label {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.device-category-selector select {
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    font-size: 1rem;
+    min-width: 180px;
+    transition: all 0.2s ease;
+    color: #374151;
+}
+
+.device-category-selector select:focus {
+    outline: none;
+    border-color: #055E88;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.device-category-selector select:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.device-type-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.device-type-selector label {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.device-type-selector select {
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    font-size: 1rem;
+    min-width: 200px;
+    transition: all 0.2s ease;
+    color: #374151;
+}
+
+.device-type-selector select:focus {
+    outline: none;
+    border-color: #055E88;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.device-type-selector select:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
 }
 
 .cluster-selector {
@@ -128,8 +202,14 @@ body {
 
 .cluster-selector select:focus {
     outline: none;
-    border-color: #0066cc;
+    border-color: #055E88;
     box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.cluster-selector select:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
 }
 
 .view-controls {
@@ -152,14 +232,14 @@ body {
 }
 
 .btn-primary {
-    background: #0066cc;
+    background: #055E88;
     color: white;
-    border: 1px solid #0066cc;
+    border: 1px solid #055E88;
 }
 
 .btn-primary:hover {
-    background: #0052a3;
-    border-color: #0052a3;
+    background: #055E88;
+    border-color: #055E88;
     transform: translateY(-1px);
 }
 
@@ -219,7 +299,7 @@ body {
 }
 
 .panel-header {
-    background: #0066cc;
+    background: #055E88;
     color: white;
     padding: 1.5rem;
     display: flex;
