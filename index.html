@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matter Cluster UI Visualizer</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-branding">
+                    <div class="arlo-logo">
+                        <div class="arlo-hummingbird">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <!-- Hummingbird body -->
+                                <ellipse cx="12" cy="12" rx="3" ry="4" fill="#00D4AA" />
+                                <!-- Beak -->
+                                <path d="M8 12L6 10" stroke="#00D4AA" stroke-width="2" stroke-linecap="round" />
+                                <!-- Wings -->
+                                <path d="M9 8C7 6 5 8 6 10" stroke="#00D4AA" stroke-width="2" stroke-linecap="round"
+                                    fill="none" />
+                                <path d="M15 8C17 6 19 8 18 10" stroke="#00D4AA" stroke-width="2" stroke-linecap="round"
+                                    fill="none" />
+                                <!-- Tail -->
+                                <path d="M9 16C7 18 5 20 3 18" stroke="#00D4AA" stroke-width="2" stroke-linecap="round"
+                                    fill="none" />
+                                <path d="M15 16C17 18 19 20 21 18" stroke="#00D4AA" stroke-width="2"
+                                    stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
+                        <span class="arlo-text">arlo</span>
+                    </div>
+                    <h1>Matter Cluster UI Visualizer</h1>
+                </div>
+                <p>Interactive visualization of Matter clusters and their UI configurations</p>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <div class="nav-content">
+                <div class="cluster-selector">
+                    <label for="cluster-select">Select Cluster:</label>
+                    <select id="cluster-select">
+                        <option value="">Choose a cluster...</option>
+                        <option value="OnOff">On/Off (0x0006)</option>
+                        <option value="LevelControl">Level Control (0x0008)</option>
+                        <option value="ColorControl">Color Control (0x0300)</option>
+                        <option value="Thermostat">Thermostat (0x0201)</option>
+                        <option value="DoorLock">Door Lock (0x0101)</option>
+                        <option value="FanControl">Fan Control (0x0202)</option>
+                        <option value="Switch">Switch (0x003B)</option>
+                    </select>
+                </div>
+                <div class="view-controls">
+                    <button id="toggle-view" class="btn btn-secondary">
+                        <i class="fas fa-code"></i> Toggle JSON View
+                    </button>
+                    <button id="reset-state" class="btn btn-outline">
+                        <i class="fas fa-refresh"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-grid">
+                <!-- UI Component Display -->
+                <div class="ui-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-mobile-alt"></i> UI Component</h2>
+                        <div class="device-info">
+                            <span class="device-type" id="device-type">Select a cluster</span>
+                            <span class="device-status" id="device-status">Offline</span>
+                        </div>
+                    </div>
+                    <div class="ui-container" id="ui-container">
+                        <div class="placeholder">
+                            <i class="fas fa-mouse-pointer"></i>
+                            <p>Select a cluster to see its UI component</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Display -->
+                <div class="config-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-cog"></i> UI Configuration</h2>
+                        <div class="config-actions">
+                            <button id="copy-config" class="btn btn-small">
+                                <i class="fas fa-copy"></i> Copy JSON
+                            </button>
+                            <button id="download-config" class="btn btn-small">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-container">
+                        <pre id="config-display" class="json-display">{
+  "message": "Select a cluster to see its configuration"
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cluster Information -->
+            <div class="info-panel" id="info-panel" style="display: none;">
+                <div class="panel-header">
+                    <h3><i class="fas fa-info-circle"></i> Cluster Information</h3>
+                </div>
+                <div class="info-content" id="cluster-info">
+                    <!-- Cluster details will be populated here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Arlo Technologies - Matter Cluster UI Visualizer</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="scripts/xml-parser.js"></script>
+    <script src="scripts/ui-components.js"></script>
+    <script src="scripts/config-generator.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>
