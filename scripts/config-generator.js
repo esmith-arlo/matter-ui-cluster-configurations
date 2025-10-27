@@ -6,9 +6,6 @@ class UIConfigGenerator {
 
     initializeTemplates() {
         this.configTemplates.set('OnOff', {
-            primary_control: 'toggle_switch',
-            controls: ['toggle'],
-            states: ['on', 'off'],
             accessibility: {
                 screen_reader: 'Power switch',
                 content_description: 'Toggle power on or off for this device',
@@ -41,15 +38,8 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('LevelControl', {
-            primary_control: 'brightness_slider',
-            brightness_range: [1, 254],
-            display_range: [1, 100],
             min_level: 1,
             max_level: 254,
-            step_size: 1,
-            units: '%',
-            controls: ['slider', 'step_up', 'step_down'],
-            states: ['level', 'min_level', 'max_level'],
             accessibility: {
                 screen_reader: 'Brightness control',
                 content_description: 'Adjust brightness level from 1% to 100%',
@@ -84,7 +74,6 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('ColorControl', {
-            primary_control: 'color_picker',
             color_modes: ['rgb', 'hsv', 'xy', 'temperature'],
             color_picker: {
                 type: 'wheel',
@@ -96,8 +85,6 @@ class UIConfigGenerator {
                 ]
             },
             temperature_range: [153, 500],
-            controls: ['color_wheel', 'temperature_slider', 'presets'],
-            states: ['hue', 'saturation', 'brightness', 'temperature'],
             accessibility: {
                 screen_reader: 'Color control',
                 content_description: 'Select color using color wheel or temperature slider',
@@ -148,11 +135,8 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('Thermostat', {
-            primary_control: 'temperature_dial',
             temperature_range: [16, 30],
             temperature_unit: 'celsius',
-            controls: ['temperature_dial', 'up_down_buttons', 'mode_selector'],
-            states: ['temperature', 'mode', 'fan_speed'],
             modes: ['heat', 'cool', 'auto', 'off'],
             accessibility: {
                 screen_reader: 'Thermostat control',
@@ -187,9 +171,6 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('DoorLock', {
-            primary_control: 'lock_button',
-            controls: ['lock_button', 'unlock_button', 'status_display'],
-            states: ['locked', 'unlocked', 'jammed'],
             security_features: ['pin_code', 'fingerprint', 'rfid'],
             accessibility: {
                 screen_reader: 'Door lock control',
@@ -223,10 +204,7 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('FanControl', {
-            primary_control: 'speed_selector',
             speed_levels: ['off', 'low', 'medium', 'high', 'auto'],
-            controls: ['speed_buttons', 'auto_mode'],
-            states: ['speed', 'mode'],
             accessibility: {
                 screen_reader: 'Fan speed control',
                 content_description: 'Control fan speed from off to high with auto mode',
@@ -260,10 +238,7 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('Switch', {
-            primary_control: 'switch_grid',
             switch_count: 4,
-            controls: ['individual_switches', 'all_on', 'all_off'],
-            states: ['switch1', 'switch2', 'switch3', 'switch4'],
             accessibility: {
                 screen_reader: 'Multi-switch control',
                 content_description: 'Control multiple switches individually or all at once',
@@ -298,9 +273,6 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('Identify', {
-            primary_control: 'identify_panel',
-            controls: ['identify_button', 'trigger_effect', 'stop_button'],
-            states: ['ready', 'identifying', 'triggering'],
             identify_time: {
                 min: 0,
                 max: 65535,
@@ -357,9 +329,6 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('Groups', {
-            primary_control: 'groups_panel',
-            controls: ['add_to_group', 'remove_from_group', 'view_groups'],
-            states: ['ungrouped', 'grouped'],
             accessibility: {
                 screen_reader: 'Device group management',
                 content_description: 'Manage device group memberships',
@@ -391,9 +360,6 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('ScenesManagement', {
-            primary_control: 'scenes_panel',
-            controls: ['create_scene', 'activate_scene', 'deactivate_scene', 'delete_scene'],
-            states: ['no_scene', 'scene_active'],
             accessibility: {
                 screen_reader: 'Scene management control',
                 content_description: 'Create and manage device scenes',
@@ -426,9 +392,6 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('PumpConfigurationAndControl', {
-            primary_control: 'pump_control_panel',
-            controls: ['start_stop', 'speed_control', 'pressure_control', 'mode_selector'],
-            states: ['stopped', 'running', 'fault'],
             operation_modes: ['constant_pressure', 'constant_speed', 'constant_flow'],
             accessibility: {
                 screen_reader: 'Pump control panel',
@@ -464,9 +427,6 @@ class UIConfigGenerator {
         });
 
         this.configTemplates.set('ValveConfigurationAndControl', {
-            primary_control: 'valve_control_panel',
-            controls: ['open_close', 'position_control', 'timing_control'],
-            states: ['closed', 'open', 'fault'],
             position_range: [0, 100],
             accessibility: {
                 screen_reader: 'Valve control panel',
@@ -520,13 +480,16 @@ class UIConfigGenerator {
                 clusters: [clusterInfo.id],
                 attributes: this.extractAttributes(clusterInfo),
                 commands: this.extractCommands(clusterInfo),
-                features: this.extractFeatures(clusterInfo)
+                features: this.extractFeatures(clusterInfo),
+                defaults: this.getDefaults(clusterType)
             },
             ui_metadata: {
                 component_type: this.getComponentType(clusterType),
-                layout: this.getLayout(clusterType),
-                theme: this.getTheme(clusterType),
-                animations: this.getAnimations(clusterType)
+                animations: this.getAnimations(clusterType),
+                confirmation_required: this.getConfirmationRequired(clusterType),
+                display_range: this.getDisplayRange(clusterType),
+                step_size: this.getStepSize(clusterType),
+                labels: this.getLabels(clusterType)
             },
             version: '1.0.0'
         };
@@ -573,8 +536,8 @@ class UIConfigGenerator {
 
     getComponentType(clusterType) {
         const componentTypes = {
-            'OnOff': 'toggle_switch',
-            'LevelControl': 'brightness_slider',
+            'OnOff': 'switch',
+            'LevelControl': 'slider',
             'ColorControl': 'color_picker',
             'Thermostat': 'temperature_dial',
             'DoorLock': 'lock_control',
@@ -587,42 +550,6 @@ class UIConfigGenerator {
             'ValveConfigurationAndControl': 'valve_control_panel'
         };
         return componentTypes[clusterType] || 'generic_control';
-    }
-
-    getLayout(clusterType) {
-        const layouts = {
-            'OnOff': 'horizontal',
-            'LevelControl': 'vertical',
-            'ColorControl': 'grid',
-            'Thermostat': 'circular',
-            'DoorLock': 'vertical',
-            'FanControl': 'grid',
-            'Switch': 'grid',
-            'Identify': 'vertical',
-            'Groups': 'vertical',
-            'ScenesManagement': 'vertical',
-            'PumpConfigurationAndControl': 'vertical',
-            'ValveConfigurationAndControl': 'vertical'
-        };
-        return layouts[clusterType] || 'vertical';
-    }
-
-    getTheme(clusterType) {
-        const themes = {
-            'OnOff': 'power',
-            'LevelControl': 'lighting',
-            'ColorControl': 'colorful',
-            'Thermostat': 'temperature',
-            'DoorLock': 'security',
-            'FanControl': 'air',
-            'Switch': 'power',
-            'Identify': 'utility',
-            'Groups': 'organization',
-            'ScenesManagement': 'automation',
-            'PumpConfigurationAndControl': 'industrial',
-            'ValveConfigurationAndControl': 'water'
-        };
-        return themes[clusterType] || 'default';
     }
 
     getAnimations(clusterType) {
@@ -643,6 +570,289 @@ class UIConfigGenerator {
         return animations[clusterType] || [];
     }
 
+    getConfirmationRequired(clusterType) {
+        const confirmationRequired = {
+            'OnOff': false,                    // Simple toggle, no confirmation needed
+            'LevelControl': false,             // Slider control, immediate feedback
+            'ColorControl': false,             // Color picker, immediate preview
+            'Thermostat': false,              // Temperature dial, immediate feedback
+            'DoorLock': true,                  // Security action, requires confirmation
+            'FanControl': false,              // Fan speed, immediate feedback
+            'Switch': false,                  // Simple switch, immediate feedback
+            'Identify': false,                // Identification, immediate action
+            'Groups': true,                   // Group operations, requires confirmation
+            'ScenesManagement': true,          // Scene changes, requires confirmation
+            'PumpConfigurationAndControl': true, // Pump control, safety confirmation
+            'ValveConfigurationAndControl': true // Valve control, safety confirmation
+        };
+        return confirmationRequired[clusterType] || false;
+    }
+
+    getDisplayRange(clusterType) {
+        const displayRanges = {
+            'LevelControl': [1, 100],           // Display as percentage (1-100%)
+            'ColorControl': [0, 360],          // Hue range (0-360 degrees)
+            'Thermostat': [16, 28],            // Temperature range (16-28°C)
+            'FanControl': [0, 7],              // Fan speed levels (0-7)
+            'OnOff': [0, 1],                   // Binary state (0-1)
+            'DoorLock': [0, 1],                // Lock state (0-1)
+            'Switch': [0, 1],                   // Switch state (0-1)
+            'Identify': [0, 1],                // Identify state (0-1)
+            'Groups': [0, 1],                   // Group state (0-1)
+            'ScenesManagement': [0, 1],         // Scene state (0-1)
+            'PumpConfigurationAndControl': [0, 100], // Pump level (0-100%)
+            'ValveConfigurationAndControl': [0, 100] // Valve position (0-100%)
+        };
+        return displayRanges[clusterType] || [0, 100];
+    }
+
+    getStepSize(clusterType) {
+        const stepSizes = {
+            'LevelControl': 1,                    // Brightness steps of 1%
+            'ColorControl': 1,                    // Color steps of 1
+            'Thermostat': 0.5,                   // Temperature steps of 0.5°C
+            'FanControl': 1,                      // Fan speed steps of 1
+            'OnOff': 1,                          // Binary steps of 1
+            'DoorLock': 1,                       // Lock state steps of 1
+            'Switch': 1,                         // Switch steps of 1
+            'Identify': 1,                       // Identify steps of 1
+            'Groups': 1,                         // Group steps of 1
+            'ScenesManagement': 1,               // Scene steps of 1
+            'PumpConfigurationAndControl': 1,    // Pump level steps of 1%
+            'ValveConfigurationAndControl': 1    // Valve position steps of 1%
+        };
+        return stepSizes[clusterType] || 1;
+    }
+
+    getDefaults(clusterType) {
+        const defaults = {
+            'LevelControl': {
+                min_level: 1,
+                max_level: 254
+            },
+            'ColorControl': {
+                min_hue: 0,
+                max_hue: 360,
+                min_saturation: 0,
+                max_saturation: 100
+            },
+            'Thermostat': {
+                min_temperature: 16,
+                max_temperature: 28,
+                target_temperature: 22
+            },
+            'DoorLock': {
+                lock_state: 0,
+                door_state: 0
+            },
+            'FanControl': {
+                min_speed: 0,
+                max_speed: 7,
+                current_speed: 0
+            },
+            'OnOff': {
+                on_off: 0
+            },
+            'Switch': {
+                switch_state: 0
+            },
+            'Identify': {
+                identify_time: 0
+            },
+            'Groups': {
+                group_id: 0
+            },
+            'ScenesManagement': {
+                scene_id: 0
+            },
+            'PumpConfigurationAndControl': {
+                min_level: 0,
+                max_level: 100,
+                current_level: 0
+            },
+            'ValveConfigurationAndControl': {
+                min_position: 0,
+                max_position: 100,
+                current_position: 0
+            }
+        };
+        return defaults[clusterType] || {};
+    }
+
+    getLabels(clusterType) {
+        const labelSets = {
+            'LevelControl': {
+                title: "Brightness Control",
+                description: "Adjust the brightness level of your light",
+                min_label: "Min",
+                max_label: "Max",
+                value_label: "Brightness",
+                unit_label: "%",
+                tooltips: {
+                    min: "Minimum brightness level",
+                    max: "Maximum brightness level",
+                    value: "Current brightness level"
+                }
+            },
+            'ColorControl': {
+                title: "Color Control",
+                description: "Select and adjust the color of your light",
+                min_label: "Min",
+                max_label: "Max",
+                value_label: "Color",
+                unit_label: "°",
+                tooltips: {
+                    min: "Minimum color value",
+                    max: "Maximum color value",
+                    value: "Current color value"
+                }
+            },
+            'Thermostat': {
+                title: "Temperature Control",
+                description: "Set your desired room temperature",
+                min_label: "16°C",
+                max_label: "28°C",
+                value_label: "Temperature",
+                unit_label: "°C",
+                tooltips: {
+                    min: "Minimum temperature",
+                    max: "Maximum temperature",
+                    value: "Current temperature setting"
+                }
+            },
+            'DoorLock': {
+                title: "Door Lock Control",
+                description: "Lock or unlock your door",
+                min_label: "Unlocked",
+                max_label: "Locked",
+                value_label: "Lock Status",
+                unit_label: "",
+                tooltips: {
+                    min: "Door is unlocked",
+                    max: "Door is locked",
+                    value: "Current lock status"
+                }
+            },
+            'FanControl': {
+                title: "Fan Speed Control",
+                description: "Adjust the speed of your fan",
+                min_label: "Off",
+                max_label: "High",
+                value_label: "Fan Speed",
+                unit_label: "",
+                tooltips: {
+                    min: "Fan is off",
+                    max: "Fan at maximum speed",
+                    value: "Current fan speed"
+                }
+            },
+            'OnOff': {
+                title: "Power Control",
+                description: "Turn your device on or off",
+                min_label: "Off",
+                max_label: "On",
+                value_label: "Power",
+                unit_label: "",
+                tooltips: {
+                    min: "Device is off",
+                    max: "Device is on",
+                    value: "Current power state"
+                }
+            },
+            'Switch': {
+                title: "Switch Control",
+                description: "Control multiple switches",
+                min_label: "Off",
+                max_label: "On",
+                value_label: "Switch",
+                unit_label: "",
+                tooltips: {
+                    min: "Switch is off",
+                    max: "Switch is on",
+                    value: "Current switch state"
+                }
+            },
+            'Identify': {
+                title: "Device Identification",
+                description: "Identify this device",
+                min_label: "Stop",
+                max_label: "Identify",
+                value_label: "Status",
+                unit_label: "",
+                tooltips: {
+                    min: "Stop identification",
+                    max: "Start identification",
+                    value: "Identification status"
+                }
+            },
+            'Groups': {
+                title: "Group Management",
+                description: "Manage device groups",
+                min_label: "Remove",
+                max_label: "Add",
+                value_label: "Group",
+                unit_label: "",
+                tooltips: {
+                    min: "Remove from group",
+                    max: "Add to group",
+                    value: "Group membership"
+                }
+            },
+            'ScenesManagement': {
+                title: "Scene Control",
+                description: "Control and manage scenes",
+                min_label: "Off",
+                max_label: "On",
+                value_label: "Scene",
+                unit_label: "",
+                tooltips: {
+                    min: "Scene is off",
+                    max: "Scene is on",
+                    value: "Current scene state"
+                }
+            },
+            'PumpConfigurationAndControl': {
+                title: "Pump Control",
+                description: "Control pump operation and settings",
+                min_label: "Off",
+                max_label: "100%",
+                value_label: "Pump Level",
+                unit_label: "%",
+                tooltips: {
+                    min: "Pump is off",
+                    max: "Pump at maximum",
+                    value: "Current pump level"
+                }
+            },
+            'ValveConfigurationAndControl': {
+                title: "Valve Control",
+                description: "Control valve position and settings",
+                min_label: "Closed",
+                max_label: "Open",
+                value_label: "Valve Position",
+                unit_label: "%",
+                tooltips: {
+                    min: "Valve is closed",
+                    max: "Valve is fully open",
+                    value: "Current valve position"
+                }
+            }
+        };
+        return labelSets[clusterType] || {
+            title: "Control",
+            description: "Control this device",
+            min_label: "Min",
+            max_label: "Max",
+            value_label: "Value",
+            unit_label: "",
+            tooltips: {
+                min: "Minimum value",
+                max: "Maximum value",
+                value: "Current value"
+            }
+        };
+    }
+
     formatConfigAsJSON(config) {
         return JSON.stringify(config, null, 2);
     }
@@ -650,7 +860,6 @@ class UIConfigGenerator {
     getConfigSummary(config) {
         return {
             cluster: config.cluster_info.name,
-            primary_control: config.primary_control,
             category: config.category,
             capabilities: Object.keys(config.capabilities.attributes).length,
             commands: Object.keys(config.capabilities.commands).length,

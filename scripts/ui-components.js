@@ -295,8 +295,8 @@ class UIComponents {
         const rangeInfo = document.createElement('div');
         rangeInfo.className = 'level-range-info';
         rangeInfo.innerHTML = `
-            <span class="min-value">${displayMin}</span>
-            <span class="max-value">${displayMax}</span>
+            <span class="min-value">Min ${displayMin}</span>
+            <span class="max-value">Max ${displayMax}</span>
         `;
 
         const sliderContainer = document.createElement('div');
