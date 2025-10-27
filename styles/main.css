@@ -275,7 +275,7 @@ body {
 /* Main Content */
 .main-content {
     flex: 1;
-    max-width: 1200px;
+    max-width: 2400px;
     margin: 0 auto;
     padding: 2rem;
     width: 100%;
@@ -283,14 +283,17 @@ body {
 
 .content-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    grid-template-columns: 2fr 2fr 2fr;
+    gap: 3rem;
     margin-bottom: 2rem;
 }
 
 /* Panels */
 .ui-panel,
-.config-panel {
+.config-panel,
+.ui-config-panel,
+.flags-panel,
+.telemetry-panel {
     background: #ffffff;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -395,6 +398,81 @@ body {
     padding: 1.5rem;
 }
 
+/* Flags and Telemetry Panels */
+.flags-grid,
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.flag-item,
+.telemetry-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 1rem;
+    transition: all 0.2s ease;
+}
+
+.flag-item:hover,
+.telemetry-item:hover {
+    background: #f1f5f9;
+    border-color: #055E88;
+    transform: translateY(-1px);
+}
+
+.flag-name,
+.telemetry-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.flag-value,
+.telemetry-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #055E88;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: #ffffff;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    word-break: break-all;
+}
+
+.dashboard-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #055E88;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    background: #ffffff;
+    border: 1px solid #055E88;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.dashboard-link:hover {
+    background: #055E88;
+    color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(5, 94, 136, 0.2);
+}
+
+.flags-content,
+.telemetry-content {
+    background: #ffffff;
+}
+
 /* Footer */
 .footer {
     background: #ffffff;
@@ -406,7 +484,18 @@ body {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 1800px) {
+    .content-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+    
+    .ui-config-panel {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 1200px) {
     .content-grid {
         grid-template-columns: 1fr;
         gap: 1rem;

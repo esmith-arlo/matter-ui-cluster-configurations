@@ -152,11 +152,11 @@ class UIComponents {
             </div>
         `;
 
-        // Configuration details
+        // Capability details
         const configSection = document.createElement('div');
         configSection.className = 'cluster-config-details';
         configSection.innerHTML = `
-            <h4>Cluster Configuration Impact</h4>
+            <h4>Cluster Capability Impact</h4>
             <div class="config-items">
                 <div class="config-item">
                     <i class="fas fa-cog"></i>
@@ -749,7 +749,7 @@ class UIComponents {
             <p>Control device identification behavior and visual effects</p>
         `;
 
-        // Identify Time Configuration
+        // Identify Time Capability
         const timeConfig = document.createElement('div');
         timeConfig.className = 'identify-time-config';
         timeConfig.innerHTML = `

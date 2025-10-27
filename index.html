@@ -84,7 +84,7 @@
                 <!-- Configuration Display -->
                 <div class="config-panel">
                     <div class="panel-header">
-                        <h2><i class="fas fa-cog"></i> Configuration</h2>
+                        <h2><i class="fas fa-cog"></i> Capability</h2>
                         <div class="config-actions">
                             <button id="copy-config" class="btn btn-small">
                                 <i class="fas fa-copy"></i> Copy JSON
@@ -100,6 +100,26 @@
 }</pre>
                     </div>
                 </div>
+
+                <!-- UI Configuration Display -->
+                <div class="ui-config-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-sliders-h"></i> UI Configuration</h2>
+                        <div class="config-actions">
+                            <button id="copy-ui-config" class="btn btn-small">
+                                <i class="fas fa-copy"></i> Copy JSON
+                            </button>
+                            <button id="download-ui-config" class="btn btn-small">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-container">
+                        <pre id="ui-config-display" class="json-display">{
+  "message": "Select a cluster to see its UI configuration"
+}</pre>
+                    </div>
+                </div>
             </div>
 
             <!-- Cluster Information -->
@@ -109,6 +129,56 @@
                 </div>
                 <div class="info-content" id="cluster-info">
                     <!-- Cluster details will be populated here -->
+                </div>
+            </div>
+
+            <!-- Launch Darkly Flag -->
+            <div class="flags-panel" id="flags-panel" style="display: none;">
+                <div class="panel-header">
+                    <h3><i class="fas fa-flag"></i> Launch Darkly Flag</h3>
+                </div>
+                <div class="flags-content" id="flags-info">
+                    <div class="flags-grid">
+                        <div class="flag-item">
+                            <div class="flag-name">Feature Flag Name</div>
+                            <div class="flag-value" id="flag-name">matter-ui-on-off-cluster</div>
+                        </div>
+                        <div class="flag-item">
+                            <div class="flag-name">Environment</div>
+                            <div class="flag-value" id="flag-environment">GoldenDev</div>
+                        </div>
+                        <div class="flag-item">
+                            <div class="flag-name">Last Updated</div>
+                            <div class="flag-value" id="flag-last-updated">2024-01-15 14:30:22</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Telemetry -->
+            <div class="telemetry-panel" id="telemetry-panel" style="display: none;">
+                <div class="panel-header">
+                    <h3><i class="fas fa-chart-line"></i> Telemetry</h3>
+                </div>
+                <div class="telemetry-content" id="telemetry-info">
+                    <div class="telemetry-grid">
+                        <div class="telemetry-item">
+                            <div class="telemetry-label">Splunk Dashboard</div>
+                            <div class="telemetry-value">
+                                <a href="https://splunk.arlo.com/en-US/app/search/matter-ui-telemetry" target="_blank" class="dashboard-link">
+                                    <i class="fas fa-external-link-alt"></i> View Splunk Dashboard
+                                </a>
+                            </div>
+                        </div>
+                        <div class="telemetry-item">
+                            <div class="telemetry-label">Amplitude Dashboard</div>
+                            <div class="telemetry-value">
+                                <a href="https://analytics.amplitude.com/arlo/dashboard/matter-ui-metrics" target="_blank" class="dashboard-link">
+                                    <i class="fas fa-external-link-alt"></i> View Amplitude Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

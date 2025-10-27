@@ -54,6 +54,18 @@ class MatterUIVisualizer {
         downloadBtn.addEventListener('click', () => {
             this.downloadConfig();
         });
+
+        // Copy UI config button
+        const copyUIConfigBtn = document.getElementById('copy-ui-config');
+        copyUIConfigBtn.addEventListener('click', () => {
+            this.copyUIConfig();
+        });
+
+        // Download UI config button
+        const downloadUIConfigBtn = document.getElementById('download-ui-config');
+        downloadUIConfigBtn.addEventListener('click', () => {
+            this.downloadUIConfig();
+        });
     }
 
     async loadClusterData() {
@@ -204,8 +216,9 @@ class MatterUIVisualizer {
                 clusterInfo
             );
 
-            // Update config display
+            // Update config displays
             this.updateConfigDisplay();
+            this.updateUIConfigDisplay();
 
             // Show cluster info
             this.showClusterInfo(clusterInfo);
@@ -326,11 +339,33 @@ class MatterUIVisualizer {
         }
     }
 
+    updateUIConfigDisplay() {
+        const uiConfigDisplay = document.getElementById('ui-config-display');
+        if (!uiConfigDisplay || !this.currentConfig) return;
+
+        // Extract everything except cluster_info and capabilities
+        const uiConfig = { ...this.currentConfig };
+        delete uiConfig.cluster_info;
+        delete uiConfig.capabilities;
+
+        const configJSON = this.configGenerator.formatConfigAsJSON(uiConfig);
+        uiConfigDisplay.textContent = configJSON;
+
+        // Add syntax highlighting (basic)
+        this.highlightJSON(uiConfigDisplay);
+    }
+
     updateConfigDisplay() {
         const configDisplay = document.getElementById('config-display');
         if (!configDisplay || !this.currentConfig) return;
 
-        const configJSON = this.configGenerator.formatConfigAsJSON(this.currentConfig);
+        // Extract only cluster_info and capabilities from the current config
+        const capabilityConfig = {
+            cluster_info: this.currentConfig.cluster_info || {},
+            capabilities: this.currentConfig.capabilities || {}
+        };
+
+        const configJSON = this.configGenerator.formatConfigAsJSON(capabilityConfig);
         configDisplay.textContent = configJSON;
 
         // Add syntax highlighting (basic)
@@ -383,6 +418,43 @@ class MatterUIVisualizer {
         `;
 
         infoPanel.style.display = 'block';
+        
+        // Show flags and telemetry panels
+        this.showFlagsPanel();
+        this.showTelemetryPanel();
+    }
+
+    showFlagsPanel() {
+        const flagsPanel = document.getElementById('flags-panel');
+        if (!flagsPanel || !this.currentConfig?.ui_metadata) return;
+
+        const uiMetadata = this.currentConfig.ui_metadata;
+        
+        // Generate feature flag name based on cluster name (kebab-case with -cluster suffix)
+        const clusterName = this.currentConfig?.cluster_info?.name || 'Unknown';
+        const flagName = `matter-ui-${clusterName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}-cluster`;
+        
+        // Determine environment (this could be dynamic based on actual environment)
+        const environments = ['GoldenDev', 'GoldenQA', 'Release'];
+        const environment = environments[Math.floor(Math.random() * environments.length)]; // For demo purposes
+        
+        // Generate last updated timestamp
+        const lastUpdated = new Date().toISOString().replace('T', ' ').substring(0, 19);
+        
+        // Update flag values
+        document.getElementById('flag-name').textContent = flagName;
+        document.getElementById('flag-environment').textContent = environment;
+        document.getElementById('flag-last-updated').textContent = lastUpdated;
+
+        flagsPanel.style.display = 'block';
+    }
+
+    showTelemetryPanel() {
+        const telemetryPanel = document.getElementById('telemetry-panel');
+        if (!telemetryPanel) return;
+
+        // Just show the panel with dashboard links - no dynamic content needed
+        telemetryPanel.style.display = 'block';
     }
 
     showPlaceholder() {
@@ -401,6 +473,17 @@ class MatterUIVisualizer {
 
         if (infoPanel) {
             infoPanel.style.display = 'none';
+        }
+
+        // Hide flags and telemetry panels
+        const flagsPanel = document.getElementById('flags-panel');
+        const telemetryPanel = document.getElementById('telemetry-panel');
+        
+        if (flagsPanel) {
+            flagsPanel.style.display = 'none';
+        }
+        if (telemetryPanel) {
+            telemetryPanel.style.display = 'none';
         }
     }
 
@@ -444,33 +527,87 @@ class MatterUIVisualizer {
     async copyConfig() {
         if (!this.currentConfig) return;
 
-        const configJSON = this.configGenerator.formatConfigAsJSON(this.currentConfig);
+        // Extract only cluster_info and capabilities from the current config
+        const capabilityConfig = {
+            cluster_info: this.currentConfig.cluster_info || {},
+            capabilities: this.currentConfig.capabilities || {}
+        };
+
+        const configJSON = this.configGenerator.formatConfigAsJSON(capabilityConfig);
 
         try {
             await navigator.clipboard.writeText(configJSON);
-            this.showNotification('Configuration copied to clipboard!');
+            this.showNotification('Capabilities copied to clipboard!');
         } catch (error) {
             console.error('Failed to copy:', error);
-            this.showNotification('Failed to copy configuration', 'error');
+            this.showNotification('Failed to copy capabilities', 'error');
         }
     }
 
     downloadConfig() {
         if (!this.currentConfig) return;
 
-        const configJSON = this.configGenerator.formatConfigAsJSON(this.currentConfig);
+        // Extract only cluster_info and capabilities from the current config
+        const capabilityConfig = {
+            cluster_info: this.currentConfig.cluster_info || {},
+            capabilities: this.currentConfig.capabilities || {}
+        };
+
+        const configJSON = this.configGenerator.formatConfigAsJSON(capabilityConfig);
         const blob = new Blob([configJSON], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${this.currentCluster}_ui_config.json`;
+        a.download = `${this.currentCluster}_capabilities.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        this.showNotification('Configuration downloaded!');
+        this.showNotification('Capabilities downloaded!');
+    }
+
+    async copyUIConfig() {
+        if (!this.currentConfig) return;
+
+        // Extract everything except cluster_info and capabilities
+        const uiConfig = { ...this.currentConfig };
+        delete uiConfig.cluster_info;
+        delete uiConfig.capabilities;
+
+        const configJSON = this.configGenerator.formatConfigAsJSON(uiConfig);
+
+        try {
+            await navigator.clipboard.writeText(configJSON);
+            this.showNotification('UI Configuration copied to clipboard!');
+        } catch (error) {
+            console.error('Failed to copy:', error);
+            this.showNotification('Failed to copy UI configuration', 'error');
+        }
+    }
+
+    downloadUIConfig() {
+        if (!this.currentConfig) return;
+
+        // Extract everything except cluster_info and capabilities
+        const uiConfig = { ...this.currentConfig };
+        delete uiConfig.cluster_info;
+        delete uiConfig.capabilities;
+
+        const configJSON = this.configGenerator.formatConfigAsJSON(uiConfig);
+        const blob = new Blob([configJSON], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.currentCluster}_ui_configuration.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        this.showNotification('UI Configuration downloaded!');
     }
 
     showNotification(message, type = 'success') {
@@ -502,8 +639,9 @@ class MatterUIVisualizer {
             const { clusterType, state } = event.detail;
 
             if (this.currentCluster === clusterType && this.currentConfig) {
-                // Update config display
+                // Update config displays
                 this.updateConfigDisplay();
+                this.updateUIConfigDisplay();
             }
         });
     }

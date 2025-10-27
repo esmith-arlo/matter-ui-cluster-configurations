@@ -1,13 +1,13 @@
 # Matter Cluster UI Visualizer
 
-A simple web application that displays UI configurations for Matter clusters in JSON format alongside actual UI components. This tool helps visualize how Matter cluster definitions map to user interface components.
+A simple web application that displays UI capabilities for Matter clusters in JSON format alongside actual UI components. This tool helps visualize how Matter cluster definitions map to user interface components.
 
 ## Features
 
 - **Interactive UI Components**: Real-time visualization of Matter cluster UI components
-- **JSON Configuration Display**: Live JSON configuration alongside UI components
+- **JSON Capabilities Display**: Live JSON capabilities alongside UI components
 - **Cluster Information**: Detailed cluster metadata, attributes, and commands
-- **Export Functionality**: Copy or download UI configurations
+- **Export Functionality**: Copy or download UI capabilities
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## Supported Clusters
@@ -31,16 +31,16 @@ A simple web application that displays UI configurations for Matter clusters in 
 2. **Select a Cluster**
    - Use the dropdown to select a Matter cluster
    - The UI component will appear on the left
-   - The JSON configuration will appear on the right
+   - The JSON capabilities will appear on the right
 
 3. **Interact with Components**
    - Click, drag, or interact with UI components
-   - Watch the JSON configuration update in real-time
+   - Watch the JSON capabilities update in real-time
    - View cluster information below the main panels
 
-4. **Export Configurations**
-   - Click "Copy JSON" to copy configuration to clipboard
-   - Click "Download" to save configuration as JSON file
+4. **Export Capabilities**
+   - Click "Copy JSON" to copy capabilities to clipboard
+   - Click "Download" to save capabilities as JSON file
 
 ## Project Structure
 
@@ -54,7 +54,7 @@ matter-ui-visualizer/
 │   ├── main.js            # Main application logic
 │   ├── xml-parser.js      # XML parsing utilities
 │   ├── ui-components.js   # UI component implementations
-│   └── config-generator.js # Configuration generation
+│   └── config-generator.js # Capability generation
 ├── data/
 │   └── clusters/          # Sample cluster XML files
 └── README.md
@@ -72,7 +72,7 @@ matter-ui-visualizer/
 - Real-time state management
 - Event-driven updates
 
-### Configuration Generator
+### Capability Generator
 - Generates comprehensive UI configurations
 - Includes accessibility and theming information
 - Supports multiple cluster types
