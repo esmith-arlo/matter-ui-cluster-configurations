@@ -1,0 +1,21 @@
+# Output directory with generated JSON files
+output/
+
+# Node modules (only in TestScripts)
+TestScripts/node_modules/
+TestScripts/package-lock.json
+
+# Logs
+*.log
+/tmp/comparison_*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

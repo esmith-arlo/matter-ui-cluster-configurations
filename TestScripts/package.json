@@ -1,0 +1,17 @@
+{
+  "name": "matter-ui-cluster-test-scripts",
+  "version": "1.0.0",
+  "description": "Test scripts for comparing Python and JavaScript capability generators",
+  "scripts": {
+    "generate:js": "node generate_capabilities_js.js",
+    "compare": "node compare_capabilities.js",
+    "test:cluster": "bash run_comparison.sh",
+    "test:all": "bash run_all_comparisons.sh"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.8.10"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
