@@ -499,39 +499,96 @@ class UIConfigGenerator {
 
     extractAttributes(clusterInfo) {
         const attributes = {};
-        clusterInfo.attributes.forEach(attr => {
-            attributes[attr.id] = {
-                name: attr.name,
-                type: attr.type,
-                access: attr.access,
-                quality: attr.quality
-            };
-        });
+        // Use capabilities if available (new format from test script)
+        if (clusterInfo.capabilities && clusterInfo.capabilities.Attributes) {
+            Object.entries(clusterInfo.capabilities.Attributes).forEach(([name, attr]) => {
+                attributes[attr.code] = {
+                    name: name,
+                    type: attr.type,
+                    access: this.convertPermissionsToAccess(attr.permissions),
+                    quality: {
+                        nullable: attr.nullable || false,
+                        scene: false,
+                        persistence: null,
+                        reportable: attr.reportable || false,
+                        quieterReporting: false
+                    }
+                };
+            });
+        } else {
+            // Fallback to old format
+            clusterInfo.attributes.forEach(attr => {
+                attributes[attr.id] = {
+                    name: attr.name,
+                    type: attr.type,
+                    access: attr.access,
+                    quality: attr.quality
+                };
+            });
+        }
         return attributes;
     }
 
     extractCommands(clusterInfo) {
         const commands = {};
-        clusterInfo.commands.forEach(cmd => {
-            commands[cmd.id] = {
-                name: cmd.name,
-                direction: cmd.direction,
-                response: cmd.response,
-                fields: cmd.fields
-            };
-        });
+        // Use capabilities if available (new format from test script)
+        if (clusterInfo.capabilities && clusterInfo.capabilities.Commands) {
+            Object.entries(clusterInfo.capabilities.Commands).forEach(([name, cmd]) => {
+                commands[cmd.id] = {
+                    name: name,
+                    direction: 'commandToServer', // Default
+                    response: null,
+                    fields: cmd.arguments || []
+                };
+            });
+        } else {
+            // Fallback to old format
+            clusterInfo.commands.forEach(cmd => {
+                commands[cmd.id] = {
+                    name: cmd.name,
+                    direction: cmd.direction,
+                    response: cmd.response,
+                    fields: cmd.fields
+                };
+            });
+        }
         return commands;
     }
 
     extractFeatures(clusterInfo) {
         const features = {};
-        clusterInfo.features.forEach(feature => {
-            features[feature.code] = {
-                name: feature.name,
-                summary: feature.summary
-            };
-        });
+        // Use capabilities if available (new format from test script)
+        if (clusterInfo.capabilities && clusterInfo.capabilities.Features) {
+            Object.entries(clusterInfo.capabilities.Features).forEach(([code, feature]) => {
+                features[code] = {
+                    name: feature.name,
+                    summary: feature.summary
+                };
+            });
+        } else {
+            // Fallback to old format
+            clusterInfo.features.forEach(feature => {
+                features[feature.code] = {
+                    name: feature.name,
+                    summary: feature.summary
+                };
+            });
+        }
         return features;
+    }
+
+    convertPermissionsToAccess(permissions) {
+        if (!permissions || !Array.isArray(permissions)) {
+            return null;
+        }
+        return {
+            read: permissions.includes('read'),
+            write: permissions.includes('write'),
+            invoke: false,
+            readPrivilege: 'view',
+            writePrivilege: permissions.includes('write') ? 'operate' : null,
+            invokePrivilege: null
+        };
     }
 
     getComponentType(clusterType) {

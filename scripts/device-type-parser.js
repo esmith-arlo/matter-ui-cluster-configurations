@@ -163,8 +163,27 @@ class DeviceTypeParser {
         return deviceType ? deviceType.deviceTypes : [];
     }
 
-    getClusterInfo(clusterId) {
-        // This would normally parse the XML files, but for now return mock data
+    async getClusterInfo(clusterId) {
+        // Check if we already have this cluster parsed
+        if (this.clusterData.has(clusterId)) {
+            return this.clusterData.get(clusterId);
+        }
+
+        // Try to load from XML file
+        const clusterFileName = this.getClusterFileName(clusterId);
+        if (clusterFileName) {
+            try {
+                const xmlContent = await this.loadXMLFile(`data/clusters/${clusterFileName}`);
+                const xmlParser = new MatterXMLParser();
+                const clusterInfo = await xmlParser.parseClusterXML(xmlContent);
+                this.clusterData.set(clusterId, clusterInfo);
+                return clusterInfo;
+            } catch (error) {
+                console.warn(`Failed to load cluster ${clusterId} from XML:`, error);
+            }
+        }
+
+        // Fallback to mock data if XML not found
         const clusterInfos = {
             '0x0003': {
                 id: '0x0003',
@@ -480,8 +499,64 @@ class DeviceTypeParser {
         return clusterInfos[clusterId] || null;
     }
 
+    getClusterFileName(clusterId) {
+        // Map cluster IDs to XML file names
+        const clusterFileMap = {
+            '0x0003': 'Identify.xml',
+            '0x0004': 'Groups.xml',
+            '0x0006': 'OnOff.xml',
+            '0x0008': 'LevelControl.xml',
+            '0x0101': 'DoorLock.xml',
+            '0x0201': 'Thermostat.xml',
+            '0x0202': 'FanControl.xml',
+            '0x0300': 'ColorControl.xml',
+            '0x0062': 'Scenes.xml',
+            '0x0200': 'PumpConfigurationControl.xml',
+            '0x003B': 'Switch.xml'
+        };
+        
+        // If exact match found, return it
+        if (clusterFileMap[clusterId]) {
+            return clusterFileMap[clusterId];
+        }
+        
+        // Try to find by cluster type name from device types
+        for (const [categoryKey, category] of this.deviceTypes) {
+            for (const cluster of category.clusters || []) {
+                if (cluster.id === clusterId) {
+                    // Try to construct filename from cluster type
+                    const fileName = `${cluster.type}.xml`;
+                    return fileName;
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    async loadXMLFile(filePath) {
+        try {
+            const response = await fetch(filePath);
+            if (!response.ok) {
+                throw new Error(`Failed to load ${filePath}: ${response.statusText}`);
+            }
+            return await response.text();
+        } catch (error) {
+            console.error(`Error loading XML file ${filePath}:`, error);
+            throw error;
+        }
+    }
+
     async loadDeviceTypeData() {
-        // In a real implementation, this would load and parse the XML files
+        // Pre-load common clusters
+        const commonClusters = ['0x0003', '0x0004', '0x0006', '0x0008', '0x0300'];
+        for (const clusterId of commonClusters) {
+            try {
+                await this.getClusterInfo(clusterId);
+            } catch (error) {
+                console.warn(`Failed to pre-load cluster ${clusterId}:`, error);
+            }
+        }
         console.log('Device type data loaded');
     }
 }

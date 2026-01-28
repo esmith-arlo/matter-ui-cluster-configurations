@@ -188,7 +188,7 @@ class MatterUIVisualizer {
         try {
             // Get cluster info from device type parser
             const clusterId = this.getClusterIdForType(clusterType);
-            const clusterInfo = this.deviceTypeParser.getClusterInfo(clusterId);
+            const clusterInfo = await this.deviceTypeParser.getClusterInfo(clusterId);
 
             if (!clusterInfo) {
                 this.showError(`Cluster information not found for ${clusterType}`);
@@ -217,7 +217,7 @@ class MatterUIVisualizer {
             );
 
             // Update config displays
-            this.updateConfigDisplay();
+            this.updateConfigDisplay(clusterInfo);
             this.updateUIConfigDisplay();
 
             // Show cluster info
@@ -355,17 +355,38 @@ class MatterUIVisualizer {
         this.highlightJSON(uiConfigDisplay);
     }
 
-    updateConfigDisplay() {
+    updateConfigDisplay(clusterInfo = null) {
         const configDisplay = document.getElementById('config-display');
-        if (!configDisplay || !this.currentConfig) return;
+        if (!configDisplay) return;
 
-        // Extract only cluster_info and capabilities from the current config
-        const capabilityConfig = {
-            cluster_info: this.currentConfig.cluster_info || {},
-            capabilities: this.currentConfig.capabilities || {}
-        };
+        // Try to get capabilities in test script format
+        let capabilityConfig = null;
+        if (clusterInfo && clusterInfo.capabilities) {
+            capabilityConfig = {
+                id: clusterInfo.id || `com.matter.cluster.${this.currentCluster?.toLowerCase() || 'unknown'}`,
+                clusterId: clusterInfo.id,
+                name: clusterInfo.name,
+                schemaVersion: 1,
+                description: clusterInfo.description || `Matter ${clusterInfo.name} Cluster`,
+                xmlSource: '',
+                Capabilities: clusterInfo.capabilities
+            };
+        } else if (this.currentConfig) {
+            // Fallback to old format
+            capabilityConfig = {
+                cluster_info: this.currentConfig.cluster_info || {},
+                capabilities: this.currentConfig.capabilities || {}
+            };
+        }
 
-        const configJSON = this.configGenerator.formatConfigAsJSON(capabilityConfig);
+        if (!capabilityConfig) {
+            configDisplay.textContent = '{\n  "message": "No capabilities available"\n}';
+            return;
+        }
+
+        const configJSON = capabilityConfig.Capabilities 
+            ? JSON.stringify(capabilityConfig, null, 2)
+            : this.configGenerator.formatConfigAsJSON(capabilityConfig);
         configDisplay.textContent = configJSON;
 
         // Add syntax highlighting (basic)
@@ -525,15 +546,36 @@ class MatterUIVisualizer {
     }
 
     async copyConfig() {
-        if (!this.currentConfig) return;
+        if (!this.currentConfig && !this.currentCluster) return;
 
-        // Extract only cluster_info and capabilities from the current config
-        const capabilityConfig = {
-            cluster_info: this.currentConfig.cluster_info || {},
-            capabilities: this.currentConfig.capabilities || {}
-        };
-
-        const configJSON = this.configGenerator.formatConfigAsJSON(capabilityConfig);
+        // Get cluster info with capabilities in test script format
+        const clusterId = this.getClusterIdForType(this.currentCluster);
+        const clusterInfo = this.deviceTypeParser.clusterData.get(clusterId);
+        
+        let configJSON;
+        if (clusterInfo && clusterInfo.capabilities) {
+            // Use capabilities in test script format
+            const capabilityConfig = {
+                id: clusterInfo.id || `com.matter.cluster.${this.currentCluster?.toLowerCase() || 'unknown'}`,
+                clusterId: clusterInfo.id,
+                name: clusterInfo.name,
+                schemaVersion: 1,
+                description: clusterInfo.description || `Matter ${clusterInfo.name} Cluster`,
+                xmlSource: '',
+                Capabilities: clusterInfo.capabilities
+            };
+            configJSON = JSON.stringify(capabilityConfig, null, 2);
+        } else if (this.currentConfig) {
+            // Fallback to old format
+            const capabilityConfig = {
+                cluster_info: this.currentConfig.cluster_info || {},
+                capabilities: this.currentConfig.capabilities || {}
+            };
+            configJSON = this.configGenerator.formatConfigAsJSON(capabilityConfig);
+        } else {
+            this.showNotification('No capabilities available', 'error');
+            return;
+        }
 
         try {
             await navigator.clipboard.writeText(configJSON);
@@ -545,21 +587,43 @@ class MatterUIVisualizer {
     }
 
     downloadConfig() {
-        if (!this.currentConfig) return;
+        if (!this.currentConfig && !this.currentCluster) return;
 
-        // Extract only cluster_info and capabilities from the current config
-        const capabilityConfig = {
-            cluster_info: this.currentConfig.cluster_info || {},
-            capabilities: this.currentConfig.capabilities || {}
-        };
+        // Get cluster info with capabilities in test script format
+        const clusterId = this.getClusterIdForType(this.currentCluster);
+        const clusterInfo = this.deviceTypeParser.clusterData.get(clusterId);
+        
+        let configJSON;
+        if (clusterInfo && clusterInfo.capabilities) {
+            // Use capabilities in test script format
+            const capabilityConfig = {
+                id: clusterInfo.id || `com.matter.cluster.${this.currentCluster?.toLowerCase() || 'unknown'}`,
+                clusterId: clusterInfo.id,
+                name: clusterInfo.name,
+                schemaVersion: 1,
+                description: clusterInfo.description || `Matter ${clusterInfo.name} Cluster`,
+                xmlSource: '',
+                Capabilities: clusterInfo.capabilities
+            };
+            configJSON = JSON.stringify(capabilityConfig, null, 2);
+        } else if (this.currentConfig) {
+            // Fallback to old format
+            const capabilityConfig = {
+                cluster_info: this.currentConfig.cluster_info || {},
+                capabilities: this.currentConfig.capabilities || {}
+            };
+            configJSON = this.configGenerator.formatConfigAsJSON(capabilityConfig);
+        } else {
+            this.showNotification('No capabilities available', 'error');
+            return;
+        }
 
-        const configJSON = this.configGenerator.formatConfigAsJSON(capabilityConfig);
         const blob = new Blob([configJSON], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${this.currentCluster}_capabilities.json`;
+        a.download = `${this.currentCluster || 'cluster'}_capabilities.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
